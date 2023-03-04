@@ -1,6 +1,5 @@
 # bt-ts-elasticsearch
 
-- By bugshot
 - A typescript supporting library for elasticsearch nodejs client
 - Supporting Elasticsearch 7.17 (2022.06)
 
@@ -313,7 +312,6 @@
       ```typescript
       let response = <BtEsSearchResponse>await tbArticleSearchDao.requestSearch(request);
       ```
-      6. Easy, right?
       
 7. Receive response
    1. You can get response using pre defined some response classes in src/response directory

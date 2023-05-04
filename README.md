@@ -4,12 +4,19 @@
 - Supporting Elasticsearch 7.17 (2022.06)
 
 1. Installation
-   1. ```
-      npm install "git+https://"
-      ```
-      inside 'dependencies' section in package.json file
-
-
+   - Create .npmrc in project root directory
+   ```
+    @es133:registry=https://npm.pkg.github.com/
+    //npm.pkg.github.com/:_authToken={YOUR GITHUB PAT(Personal Access Token)}
+   ```
+   - Add dependancy item In package.json file, add this
+   ```
+   "dependencies": {
+       ...
+       "@es133/bt-ts-elasticsearch": "1.0.0"
+       ...
+   },
+   ```
 2. Quick example
    1. Configuration
       ```

@@ -36,7 +36,7 @@
          
          //Init dao 
          const esConfig = new BtEsAbstractConfig(config['esClientService']); 
-         let tbArticleSearchDao = new BtEsAbstractDao(esConfig);
+         let btArticleSearchDao = new BtEsAbstractDao(esConfig);
 
          //Build Query
          let searchRequest = new BtEsAbstractGetRequest();
@@ -44,7 +44,7 @@
          searchRequest.setId(3954);
          searchRequest.setSource(true);
 
-         tbArticleSearchDao.requestGet(searchRequest).then(result => {
+         btArticleSearchDao.requestGet(searchRequest).then(result => {
             console.log('RESULT:', result);
             process.exit(0);
          }).catch(error => {
@@ -52,9 +52,9 @@
             process.exit(0);
          });
       ```
-      ```typescript
-         //RESPONSE
-         BtEsGetResponse {
+      RESPONSE
+      ```JSON
+         {
             statusCode: 200,
             response: {
                index: 'search',
@@ -86,7 +86,7 @@
          //Init dao
          const esConfig = new BtEsAbstractConfig(config['esClientService']);
          console.log('ES CONFIG:', esConfig);
-         let tbArticleSearchDao = new BtEsAbstractDao(esConfig);
+         let btArticleSearchDao = new BtEsAbstractDao(esConfig);
 
          //Build Query
          let searchRequest = new BtEsAbstractSearchRequest();
@@ -96,7 +96,7 @@
          searchRequest.setSource(true);
 
 
-         tbArticleSearchDao.requestSearch(searchRequest).then(result => {
+         btArticleSearchDao.requestSearch(searchRequest).then(result => {
             console.log('RESULT:', result);
             process.exit(0);
          }).catch(error => {
@@ -140,7 +140,7 @@
          import {config} from './es-config';
          import {BtEsAbstractConfig} from "../src/BtEsAbstractConfig";
          import {BtEsAbstractDao} from "../src/BtEsAbstractDao";
-         import {BtEsAbstractPutRequest} from "../src/tb_es_request/BtEsAbstractPutRequest";
+         import {BtEsAbstractPutRequest} from "../src/bt_es_request/BtEsAbstractPutRequest";
          import {BtEsDocumentIndexResponse} from "../src/BtElasticSearch";
 
          const doc = {
@@ -274,7 +274,7 @@
       1. Create DAO using configuration
       ```typescript
       const esConfig = new BtEsAbstractConfig(config['esClientService']);
-      let tbArticleSearchDao = new BtEsAbstractDao(esConfig);
+      let btArticleSearchDao = new BtEsAbstractDao(esConfig);
       ```
       2. Select proper request;For search document, index document, delete document, etc
       ```typescript
@@ -310,7 +310,7 @@
       ```
       5. Send request and receive response from ES 
       ```typescript
-      let response = <BtEsSearchResponse>await tbArticleSearchDao.requestSearch(request);
+      let response = <BtEsSearchResponse>await btArticleSearchDao.requestSearch(request);
       ```
       
 7. Receive response

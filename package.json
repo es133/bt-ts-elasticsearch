@@ -25,5 +25,13 @@
     "prepare": "npm run build",
     "test": "mocha"
   },
-  "private": true
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/es133/bt-ts-elasticsearch"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "author": "bugshot@gmail.com",
+  "license": "MIT license"
 }

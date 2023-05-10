@@ -1,11 +1,11 @@
 {
   "name": "@es133/bt-ts-elasticsearch",
-  "version": "1.0.1",
-  "main": "dist/BtTsElasticSearch.js",
+  "version": "1.0.2",
+  "main": "dist/BtElasticSearch.js",
   "exports": {
-    ".": "./dist/BtTsElasticSearch.js"
+    ".": "./dist/BtElasticSearch.js"
   },
-  "types": "dist/BtTsElasticSearch.d.ts",
+  "types": "dist/BtElasticSearch.d.ts",
   "dependencies": {
     "@elastic/elasticsearch": "^7.17.0",
     "@types/node": "^17.0.33",

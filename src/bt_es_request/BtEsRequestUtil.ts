@@ -12,180 +12,260 @@ export class BtEsRequestUtil {
     }
 
     static buildQueryParam(query:EsQueryDsl) {
-        let param:any = {};
-        let root =  null;
+        const result:any = {};
+        const stack: Array<{ query: EsQueryDsl, assign: (r: any) => void }> = [
+            { query, assign: (r) => Object.assign(result, r) }
+        ];
 
-        //If Dsl has no _title property
-        if (query.name() === undefined || query.name() === null) {
-            root = query.body();
-            for (let key in root) {
-                if (root.hasOwnProperty(key)) {
-                    if (root[key] instanceof Array) {
-                        param[key] = [];
-                        for (let i = 0 ; i < root[key].length ; i++) {
+        while (stack.length > 0) {
+            const { query: currentQuery, assign } = stack.pop()!;
+            const param:any = {};
+            let root = null;
 
-                            if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
-                                param[key].push(BtEsRequestUtil.buildQueryParam(root[key][i]));
+            //If Dsl has no _title property
+            if (currentQuery.name() === undefined || currentQuery.name() === null) {
+                root = currentQuery.body();
+                for (let key in root) {
+                    if (root.hasOwnProperty(key)) {
+                        if (root[key] instanceof Array) {
+                            param[key] = [];
+                            for (let i = 0 ; i < root[key].length ; i++) {
+                                if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
+                                    const arr = param[key];
+                                    const idx = arr.length;
+                                    arr.push(null);
+                                    stack.push({ query: root[key][i], assign: (r) => { arr[idx] = r; } });
+                                } else {
+                                    param[key].push(root[key][i]);
+                                }
+                            }
+                        } else {
+                            if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
+                                const p = param;
+                                const k = key;
+                                stack.push({ query: root[key], assign: (r) => { p[k] = r; } });
                             } else {
-                                param[key].push(root[key][i]);
+                                param[key] = root[key];
                             }
                         }
-                    } else {
-                        if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
-                            param[key] = BtEsRequestUtil.buildQueryParam(root[key]);
+                    }
+                }
+            } else {
+                param[currentQuery.name()] = {};
+                root = currentQuery.body()[currentQuery.name()];
+
+                for (let key in root) {
+                    if (root.hasOwnProperty(key)) {
+                        if (root[key] instanceof Array) {
+                            param[currentQuery.name()][key] = [];
+                            for (let i = 0 ; i < root[key].length ; i++) {
+                                if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
+                                    const arr = param[currentQuery.name()][key];
+                                    const idx = arr.length;
+                                    arr.push(null);
+                                    stack.push({ query: root[key][i], assign: (r) => { arr[idx] = r; } });
+                                } else {
+                                    param[currentQuery.name()][key].push(root[key][i]);
+                                }
+                            }
                         } else {
-                            param[key] = root[key];
+                            if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
+                                const target = param[currentQuery.name()];
+                                const k = key;
+                                stack.push({ query: root[key], assign: (r) => { target[k] = r; } });
+                            } else {
+                                param[currentQuery.name()][key] = root[key];
+                            }
                         }
                     }
                 }
             }
-        } else {
-            param[query.name()] = {};
-            root = query.body()[query.name()];
-
-            for (let key in root) {
-                if (root.hasOwnProperty(key)) {
-                    if (root[key] instanceof Array) {
-                        //param[query._title][key] = [];
-                        param[query.name()][key] = [];
-                        for (let i = 0 ; i < root[key].length ; i++) {
-                            if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
-                                param[query.name()][key].push(BtEsRequestUtil.buildQueryParam(root[key][i]));
-                            } else {
-                                param[query.name()][key].push(root[key][i]);
-                            }
-                        }
-                    } else {
-                        if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
-                            param[query.name()][key] = BtEsRequestUtil.buildQueryParam(root[key]);
-                        } else {
-                            param[query.name()][key] = root[key];
-                        }
-                    }
-                }
-            }
+            assign(param);
         }
-        return param;
+        return result;
     }
 
     static buildAggsParam(aggs:EsQueryDsl) {
-        let param:any = {};
+        const result:any = {};
+        const stack: Array<{ query: EsQueryDsl, assign: (r: any) => void }> = [
+            { query: aggs, assign: (r) => Object.assign(result, r) }
+        ];
 
-        param[aggs.name()] = {};
-        let root = aggs.body()[aggs.name()];
+        while (stack.length > 0) {
+            const { query: currentAggs, assign } = stack.pop()!;
+            const param:any = {};
 
-        for (let key in root) {
-            if (root.hasOwnProperty(key)) {
-                if (root[key] instanceof Array) {
-                    param[aggs.name()][key] = {};
-                    for (let i = 0 ; i < root[key].length ; i++) {
-                        if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i]) ) {
-                            Object.assign(param[aggs.name()][key], BtEsRequestUtil.buildAggsParam(root[key][i]));
-                        } else {
-                            Object.assign(param[aggs.name()][key], root[key][i]);
+            param[currentAggs.name()] = {};
+            const root = currentAggs.body()[currentAggs.name()];
+
+            for (let key in root) {
+                if (root.hasOwnProperty(key)) {
+                    if (root[key] instanceof Array) {
+                        param[currentAggs.name()][key] = {};
+                        for (let i = 0 ; i < root[key].length ; i++) {
+                            if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
+                                const target = param[currentAggs.name()][key];
+                                stack.push({ query: root[key][i], assign: (r) => { Object.assign(target, r); } });
+                            } else {
+                                Object.assign(param[currentAggs.name()][key], root[key][i]);
+                            }
                         }
-                    }
-                } else {
-                    if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
-                        param[aggs.name()][key] = BtEsRequestUtil.buildAggsParam(root[key]);
                     } else {
-                        param[aggs.name()][key] = root[key];
+                        if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
+                            const target = param[currentAggs.name()];
+                            const k = key;
+                            stack.push({ query: root[key], assign: (r) => { target[k] = r; } });
+                        } else {
+                            param[currentAggs.name()][key] = root[key];
+                        }
                     }
                 }
             }
+            assign(param);
         }
-        return param;
+        return result;
     }
 
     static buildSuggestParam(suggest:EsQueryDsl) {
+        const result:any = {};
+        const stack: Array<{ query: EsQueryDsl, assign: (r: any) => void }> = [
+            { query: suggest, assign: (r) => Object.assign(result, r) }
+        ];
 
-        let param:any = {};
+        while (stack.length > 0) {
+            const { query: currentSuggest, assign } = stack.pop()!;
+            const param:any = {};
 
-        param[suggest.name()] = {};
-        let root = suggest.body()[suggest.name()];
+            param[currentSuggest.name()] = {};
+            const root = currentSuggest.body()[currentSuggest.name()];
 
-        for (let key in root) {
-            if (root.hasOwnProperty(key)) {
-                if (root[key] instanceof Array) {
-                    param[suggest.name()][key] = {};
-                    for (let i = 0 ; i < root[key].length ; i++) {
-                        if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
-                            Object.assign(param[suggest.name()][key], BtEsRequestUtil.buildSuggestParam(root[key][i]));
-                        } else {
-                            Object.assign(param[suggest.name()][key], root[key][i]);
+            for (let key in root) {
+                if (root.hasOwnProperty(key)) {
+                    if (root[key] instanceof Array) {
+                        param[currentSuggest.name()][key] = {};
+                        for (let i = 0 ; i < root[key].length ; i++) {
+                            if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
+                                const target = param[currentSuggest.name()][key];
+                                stack.push({ query: root[key][i], assign: (r) => { Object.assign(target, r); } });
+                            } else {
+                                Object.assign(param[currentSuggest.name()][key], root[key][i]);
+                            }
                         }
-                    }
-                } else {
-                    if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
-                        param[suggest.name()][key] = BtEsRequestUtil.buildSuggestParam(root[key]);
                     } else {
-                        param[suggest.name()][key] = root[key];
+                        if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
+                            const target = param[currentSuggest.name()];
+                            const k = key;
+                            stack.push({ query: root[key], assign: (r) => { target[k] = r; } });
+                        } else {
+                            param[currentSuggest.name()][key] = root[key];
+                        }
                     }
                 }
             }
+            assign(param);
         }
-        return param;
+        return result;
     }
 
     static buildRetrieverParam(retriever: EsRetriever) {
-        let param: any = {};
-        let root = null;
+        const result: any = {};
+        type StackItem =
+            | { type: 'retriever'; source: EsRetriever; assign: (r: any) => void }
+            | { type: 'queryDsl'; source: EsQueryDsl; assign: (r: any) => void };
+        const stack: StackItem[] = [
+            { type: 'retriever', source: retriever, assign: (r) => Object.assign(result, r) }
+        ];
 
-        if (retriever.name() === undefined || retriever.name() === null) {
-            root = retriever.body();
-            for (let key in root) {
-                if (root.hasOwnProperty(key)) {
-                    if (root[key] instanceof Array) {
-                        param[key] = [];
-                        for (let i = 0; i < root[key].length; i++) {
-                            if (BtEsRequestUtil.instanceOfEsRetriever(root[key][i])) {
-                                param[key].push(BtEsRequestUtil.buildRetrieverParam(root[key][i]));
-                            } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
-                                param[key].push(BtEsRequestUtil.buildQueryParam(root[key][i]));
+        while (stack.length > 0) {
+            const item = stack.pop()!;
+
+            if (item.type === 'queryDsl') {
+                item.assign(BtEsRequestUtil.buildQueryParam(item.source));
+                continue;
+            }
+
+            const currentRetriever = item.source;
+            const assign = item.assign;
+            const param: any = {};
+            let root = null;
+
+            if (currentRetriever.name() === undefined || currentRetriever.name() === null) {
+                root = currentRetriever.body();
+                for (let key in root) {
+                    if (root.hasOwnProperty(key)) {
+                        if (root[key] instanceof Array) {
+                            param[key] = [];
+                            for (let i = 0; i < root[key].length; i++) {
+                                if (BtEsRequestUtil.instanceOfEsRetriever(root[key][i])) {
+                                    const arr = param[key];
+                                    const idx = arr.length;
+                                    arr.push(null);
+                                    stack.push({ type: 'retriever', source: root[key][i], assign: (r) => { arr[idx] = r; } });
+                                } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
+                                    const arr = param[key];
+                                    const idx = arr.length;
+                                    arr.push(null);
+                                    stack.push({ type: 'queryDsl', source: root[key][i], assign: (r) => { arr[idx] = r; } });
+                                } else {
+                                    param[key].push(root[key][i]);
+                                }
+                            }
+                        } else {
+                            if (BtEsRequestUtil.instanceOfEsRetriever(root[key])) {
+                                const p = param;
+                                const k = key;
+                                stack.push({ type: 'retriever', source: root[key], assign: (r) => { p[k] = r; } });
+                            } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
+                                const p = param;
+                                const k = key;
+                                stack.push({ type: 'queryDsl', source: root[key], assign: (r) => { p[k] = r; } });
                             } else {
-                                param[key].push(root[key][i]);
+                                param[key] = root[key];
                             }
                         }
-                    } else {
-                        if (BtEsRequestUtil.instanceOfEsRetriever(root[key])) {
-                            param[key] = BtEsRequestUtil.buildRetrieverParam(root[key]);
-                        } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
-                            param[key] = BtEsRequestUtil.buildQueryParam(root[key]);
+                    }
+                }
+            } else {
+                param[currentRetriever.name()] = {};
+                root = currentRetriever.body()[currentRetriever.name()];
+
+                for (let key in root) {
+                    if (root.hasOwnProperty(key)) {
+                        if (root[key] instanceof Array) {
+                            param[currentRetriever.name()][key] = [];
+                            for (let i = 0; i < root[key].length; i++) {
+                                if (BtEsRequestUtil.instanceOfEsRetriever(root[key][i])) {
+                                    const arr = param[currentRetriever.name()][key];
+                                    const idx = arr.length;
+                                    arr.push(null);
+                                    stack.push({ type: 'retriever', source: root[key][i], assign: (r) => { arr[idx] = r; } });
+                                } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
+                                    const arr = param[currentRetriever.name()][key];
+                                    const idx = arr.length;
+                                    arr.push(null);
+                                    stack.push({ type: 'queryDsl', source: root[key][i], assign: (r) => { arr[idx] = r; } });
+                                } else {
+                                    param[currentRetriever.name()][key].push(root[key][i]);
+                                }
+                            }
                         } else {
-                            param[key] = root[key];
+                            if (BtEsRequestUtil.instanceOfEsRetriever(root[key])) {
+                                const target = param[currentRetriever.name()];
+                                const k = key;
+                                stack.push({ type: 'retriever', source: root[key], assign: (r) => { target[k] = r; } });
+                            } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
+                                const target = param[currentRetriever.name()];
+                                const k = key;
+                                stack.push({ type: 'queryDsl', source: root[key], assign: (r) => { target[k] = r; } });
+                            } else {
+                                param[currentRetriever.name()][key] = root[key];
+                            }
                         }
                     }
                 }
             }
-        } else {
-            param[retriever.name()] = {};
-            root = retriever.body()[retriever.name()];
-
-            for (let key in root) {
-                if (root.hasOwnProperty(key)) {
-                    if (root[key] instanceof Array) {
-                        param[retriever.name()][key] = [];
-                        for (let i = 0; i < root[key].length; i++) {
-                            if (BtEsRequestUtil.instanceOfEsRetriever(root[key][i])) {
-                                param[retriever.name()][key].push(BtEsRequestUtil.buildRetrieverParam(root[key][i]));
-                            } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
-                                param[retriever.name()][key].push(BtEsRequestUtil.buildQueryParam(root[key][i]));
-                            } else {
-                                param[retriever.name()][key].push(root[key][i]);
-                            }
-                        }
-                    } else {
-                        if (BtEsRequestUtil.instanceOfEsRetriever(root[key])) {
-                            param[retriever.name()][key] = BtEsRequestUtil.buildRetrieverParam(root[key]);
-                        } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
-                            param[retriever.name()][key] = BtEsRequestUtil.buildQueryParam(root[key]);
-                        } else {
-                            param[retriever.name()][key] = root[key];
-                        }
-                    }
-                }
-            }
+            assign(param);
         }
-        return param;
+        return result;
     }
 }

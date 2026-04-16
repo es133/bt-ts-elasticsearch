@@ -1,42 +1,66 @@
 'use strict';
 
 import { BtEsAbstractRequest } from './BtEsAbstractRequest';
-import {BT_ES_INDEX_OP_TYPE} from "../type/BtEsEnums";
+import {ES_INDEX_OP_TYPE} from "../type/BtEsEnums";
 
 export class BtEsAbstractPutRequest extends BtEsAbstractRequest {
     constructor() {
         super();
-        this.requestParam['body'] = null;
-        this.requestParam['opType'] = 'index';
+        this.param['body'] = null;
+        this.param['op_type'] = 'index';
     }
 
     public setTimestamp(timestamp:Date):void {
         if (timestamp !== undefined && timestamp !== null) {
-            this.requestParam['@timestamp'] = timestamp;
+            this.param['@timestamp'] = timestamp;
         }
     }
 
     public setId(docId:number|string):void {
-        this.requestParam['id'] = docId;
+        this.param['id'] = docId;
     }
 
     public setParentId(parentId:number|string):void {
-        this.requestParam['parent'] = parentId;
+        this.param['parent'] = parentId;
     }
 
     public setRouting (routing:string):void {
-        this.requestParam['routing'] = routing;
+        this.param['routing'] = routing;
     }
 
-    public setOpType (opType:BT_ES_INDEX_OP_TYPE):void {
-        this.requestParam['opType'] = opType;
+    public setOpType (opType:ES_INDEX_OP_TYPE):void {
+        this.param['op_type'] = opType;
     }
 
-    public getOpType():BT_ES_INDEX_OP_TYPE {
-        return this.requestParam['opType'];
+    public getOpType():ES_INDEX_OP_TYPE {
+        return this.param['op_type'];
     }
 
     public getRouting(): string {
-        return this.requestParam['routing'];
+        return this.param['routing'];
+    }
+
+    public set timestamp(timestamp:Date) {
+        this.setTimestamp(timestamp);
+    }
+
+    public set id(docId:number|string) {
+        this.setId(docId);
+    }
+
+    public set parentId(parentId:number|string) {
+        this.setParentId(parentId);
+    }
+
+    public set opType (opType:ES_INDEX_OP_TYPE) {
+        this.setOpType(opType);
+    }
+
+    public get opType():ES_INDEX_OP_TYPE {
+        return this.getOpType();
+    }
+
+    public get routing(): string {
+        return this.getRouting();
     }
 }

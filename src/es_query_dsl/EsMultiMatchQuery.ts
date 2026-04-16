@@ -2,7 +2,7 @@
 
 import { EsQueryDsl } from '../interface/EsQueryDsl';
 import {EsAbstractQueryDsl} from "./EsAbstractQueryDsl";
-import {BT_ES_MULTIMATCH_TYPE, BT_ES_QUERY_LOGIC_OPERATOR} from "../type/BtEsEnums";
+import {ES_MULTIMATCH_TYPE, ES_QUERY_LOGIC_OPERATOR} from "../type/BtEsEnums";
 
 export class EsMultiMatchQuery extends EsAbstractQueryDsl {
 
@@ -26,12 +26,12 @@ export class EsMultiMatchQuery extends EsAbstractQueryDsl {
         return this;
     }
 
-    public queryType(type:BT_ES_MULTIMATCH_TYPE):EsMultiMatchQuery {
+    public queryType(type:ES_MULTIMATCH_TYPE):EsMultiMatchQuery {
         this.setProperty('type', type);
         return this;
     }
 
-    public operator(operator:BT_ES_QUERY_LOGIC_OPERATOR):EsMultiMatchQuery {
+    public operator(operator:ES_QUERY_LOGIC_OPERATOR):EsMultiMatchQuery {
         this.setProperty('operator', operator);
         return this;
     }

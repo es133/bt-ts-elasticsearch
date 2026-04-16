@@ -1,20 +1,20 @@
 import {BtEsGetResponseType} from "../type/BtEsResponseType";
-import {BtEsAbstractResponse} from './BtEsAbstractResponse';
+import {BtEsResponse} from '../interface/BtEsResponse';
 
-export class BtEsGetResponse extends BtEsAbstractResponse {
+export class BtEsGetResponse implements BtEsResponse {
 
     protected response:BtEsGetResponseType;
 
-    constructor(body:any, statusCode:number) {
-        super(statusCode);
+    constructor(response:any) {
+        
         this.response = {
-            index:body['_index'],
-            id:body['_id'],
-            version:body['_version'],
-            sequenceNumber:body['_seq_no'],
-            primaryTerm:body['_primary_term'],
-            found:body['found'],
-            source:body['_source'],
+            index:response['_index'],
+            id:response['_id'],
+            version:response['_version'],
+            sequenceNumber:response['_seq_no'],
+            primaryTerm:response['_primary_term'],
+            found:response['found'],
+            source:response['_source'],
         }
     }
 

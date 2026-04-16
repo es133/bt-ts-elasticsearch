@@ -1,7 +1,7 @@
 import {BtEsIndexResponseType } from "../type/BtEsResponseType";
-import {BtEsAbstractResponse} from './BtEsAbstractResponse';
+import {BtEsResponse} from '../interface/BtEsResponse';
 
-export class BtEsDocumentIndexResponse extends BtEsAbstractResponse {
+export class BtEsDocumentIndexResponse implements BtEsResponse {
 
     /*
     "body": {
@@ -22,19 +22,19 @@ export class BtEsDocumentIndexResponse extends BtEsAbstractResponse {
 
     protected response: BtEsIndexResponseType;
 
-    constructor(body:any, statusCode:number) {
-        super(statusCode);
+    constructor(response:any) {
+        
         this.response = {
-            id : body['_id'],
-            index : body['_index'],
-            version : body['_version'],
-            result : body['result'],
-            sequenceNumber : body['_seq_no'],
-            primaryTerm : body['_primary_term'],
+            id : response['_id'],
+            index : response['_index'],
+            version : response['_version'],
+            result : response['result'],
+            sequenceNumber : response['_seq_no'],
+            primaryTerm : response['_primary_term'],
             shardInfo : {
-                total:body['_shards']['total'],
-                success:body['_shards']['successful'],
-                fail:body['_shards']['failed'],
+                total:response['_shards']['total'],
+                success:response['_shards']['successful'],
+                fail:response['_shards']['failed'],
             }
         }
     }

@@ -1,7 +1,7 @@
 import {BtEsIndexResponseType} from "../type/BtEsResponseType";
-import {BtEsAbstractResponse} from './BtEsAbstractResponse';
+import {BtEsResponse} from '../interface/BtEsResponse';
 
-export class BtEsBulkIndexResponse extends BtEsAbstractResponse {
+export class BtEsBulkIndexResponse implements BtEsResponse {
     /*
     "body": {
         "took": 4,
@@ -30,14 +30,14 @@ export class BtEsBulkIndexResponse extends BtEsAbstractResponse {
     protected error:boolean;
     protected resultList:Array<BtEsIndexResponseType>;
 
-    constructor(body:any, statusCode:number) {
-        super(statusCode);
+    constructor(response:any) {
+        
         this.resultList = [];
-        this.elapsedTime = body['took'];
-        this.error = body['errors'];
+        this.elapsedTime = response['took'];
+        this.error = response['errors'];
 
-        if (body.hasOwnProperty('items') && Array.isArray(body['items'])) {
-            for (let item of body['items']) {
+        if (response.hasOwnProperty('items') && Array.isArray(response['items'])) {
+            for (let item of response['items']) {
                 //console.log('INDEX ITEM:', item);
                 let itemResult = null;
                 let action = null;

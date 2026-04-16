@@ -1,11 +1,11 @@
 'use strict';
 
 import { EsSort} from './EsSort';
-import {BT_ES_SORT_ORDER} from "../../type/BtEsEnums";
+import {ES_SORT_ORDER} from "../../type/BtEsEnums";
 import {EsQueryDsl} from "../../interface/EsQueryDsl";
 
 export class EsNestedSort extends EsSort {
-    constructor(field:string, order?:BT_ES_SORT_ORDER, mode?:string) {
+    constructor(field:string, order?:ES_SORT_ORDER, mode?:string) {
         super(field, order, mode);
     }
 

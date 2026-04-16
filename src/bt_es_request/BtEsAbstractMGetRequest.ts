@@ -1,47 +1,73 @@
 'use strict';
 
 import { BtEsAbstractRequest } from './BtEsAbstractRequest';
-import {BT_ES_QUERY_PARAM} from "../type/BtEsEnums";
+import {ES_QUERY_PARAM} from "../type/BtEsEnums";
+import { RoutingValue, PreferenceValue } from '../type/EsRequestTypes';
 
 export class BtEsAbstractMGetRequest extends BtEsAbstractRequest {
     constructor() {
         super();
-        this.requestParam[BT_ES_QUERY_PARAM.BODY] = {};
+        this.param[ES_QUERY_PARAM.BODY] = {};
     }
 
     public setIds(docIds:Array<number|string>):void {
         if (docIds !== undefined && docIds !== null) {
-            this.requestParam[BT_ES_QUERY_PARAM.BODY]['ids'] = docIds;
+            this.param[ES_QUERY_PARAM.BODY]['ids'] = docIds;
         }
     }
 
-    public setDocs(docs:any):void {
+    public setDocs(docs:Array<{_id: string | number; _index?: string; _source?: string[]}>):void {
         if (docs !== undefined && docs !== null) {
-            this.requestParam[BT_ES_QUERY_PARAM.BODY]['docs'] = docs;
+            this.param[ES_QUERY_PARAM.BODY]['docs'] = docs;
         }
     }
 
     public setRealtime(value:boolean):void {
         if (value !== undefined && value !== null) {
-            this.requestParam['realtime'] = value;
+            this.param['realtime'] = value;
         }
     }
 
-    public setPreference(preference:any):void {
+    public setPreference(preference:PreferenceValue):void {
         if (preference !== undefined && preference !== null) {
-            this.requestParam['preference'] = preference;
+            this.param['preference'] = preference;
         }
     }
 
-    public setRouting(routing:any):void {
+    public setRouting(routing:RoutingValue):void {
         if (routing !== undefined && routing !== null) {
-            this.requestParam['routing'] = routing;
+            this.param['routing'] = routing;
         }
     }
 
     public setRefresh(value:boolean):void {
         if (value !== undefined && value !== null) {
-            this.requestParam['refresh'] = value;
+            this.param['refresh'] = value;
         }
     }
+
+    public set ids(docIdList:Array< number|string>) {
+        this.setIds(docIdList);
+    }
+
+    public set docs(docs:Array<{_id: string | number; _index?: string; _source?: string[]}>) {
+        this.setDocs(docs);
+    }
+
+    public set realtime(value:boolean) {
+        this.setRealtime(value);
+    }
+
+    public set preference(preference:PreferenceValue) {
+        this.setPreference(preference);
+    }
+
+    public set routing(routing:RoutingValue) {
+        this.setRouting(routing);
+    }
+
+    public set refresh(value:boolean) {
+        this.setRefresh(value);
+    }
+
 }

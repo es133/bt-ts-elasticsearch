@@ -1,9 +1,14 @@
 import { EsQueryDsl } from '../interface/EsQueryDsl';
+import { EsRetriever } from '../interface/EsRetriever';
 
 export class BtEsRequestUtil {
 
     static instanceOfEsQueryDsl(instance: any): instance is EsQueryDsl{
         return (instance as EsQueryDsl).isEsQueryDsl !== undefined;
+    }
+
+    static instanceOfEsRetriever(instance: any): instance is EsRetriever{
+        return (instance as EsRetriever).isEsRetriever !== undefined;
     }
 
     static buildQueryParam(query:EsQueryDsl) {
@@ -115,6 +120,68 @@ export class BtEsRequestUtil {
                         param[suggest.name()][key] = BtEsRequestUtil.buildSuggestParam(root[key]);
                     } else {
                         param[suggest.name()][key] = root[key];
+                    }
+                }
+            }
+        }
+        return param;
+    }
+
+    static buildRetrieverParam(retriever: EsRetriever) {
+        let param: any = {};
+        let root = null;
+
+        if (retriever.name() === undefined || retriever.name() === null) {
+            root = retriever.body();
+            for (let key in root) {
+                if (root.hasOwnProperty(key)) {
+                    if (root[key] instanceof Array) {
+                        param[key] = [];
+                        for (let i = 0; i < root[key].length; i++) {
+                            if (BtEsRequestUtil.instanceOfEsRetriever(root[key][i])) {
+                                param[key].push(BtEsRequestUtil.buildRetrieverParam(root[key][i]));
+                            } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
+                                param[key].push(BtEsRequestUtil.buildQueryParam(root[key][i]));
+                            } else {
+                                param[key].push(root[key][i]);
+                            }
+                        }
+                    } else {
+                        if (BtEsRequestUtil.instanceOfEsRetriever(root[key])) {
+                            param[key] = BtEsRequestUtil.buildRetrieverParam(root[key]);
+                        } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
+                            param[key] = BtEsRequestUtil.buildQueryParam(root[key]);
+                        } else {
+                            param[key] = root[key];
+                        }
+                    }
+                }
+            }
+        } else {
+            param[retriever.name()] = {};
+            root = retriever.body()[retriever.name()];
+
+            for (let key in root) {
+                if (root.hasOwnProperty(key)) {
+                    if (root[key] instanceof Array) {
+                        param[retriever.name()][key] = [];
+                        for (let i = 0; i < root[key].length; i++) {
+                            if (BtEsRequestUtil.instanceOfEsRetriever(root[key][i])) {
+                                param[retriever.name()][key].push(BtEsRequestUtil.buildRetrieverParam(root[key][i]));
+                            } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key][i])) {
+                                param[retriever.name()][key].push(BtEsRequestUtil.buildQueryParam(root[key][i]));
+                            } else {
+                                param[retriever.name()][key].push(root[key][i]);
+                            }
+                        }
+                    } else {
+                        if (BtEsRequestUtil.instanceOfEsRetriever(root[key])) {
+                            param[retriever.name()][key] = BtEsRequestUtil.buildRetrieverParam(root[key]);
+                        } else if (BtEsRequestUtil.instanceOfEsQueryDsl(root[key])) {
+                            param[retriever.name()][key] = BtEsRequestUtil.buildQueryParam(root[key]);
+                        } else {
+                            param[retriever.name()][key] = root[key];
+                        }
                     }
                 }
             }

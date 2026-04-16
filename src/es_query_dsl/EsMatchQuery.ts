@@ -2,7 +2,7 @@
 
 import { EsQueryDsl } from '../interface/EsQueryDsl';
 import {EsAbstractQueryDsl} from "./EsAbstractQueryDsl";
-import {BT_ES_QUERY_LOGIC_OPERATOR} from "../type/BtEsEnums";
+import {ES_QUERY_LOGIC_OPERATOR} from "../type/BtEsEnums";
 
 export class EsMatchQuery extends EsAbstractQueryDsl {
 
@@ -61,7 +61,7 @@ export class EsMatchQuery extends EsAbstractQueryDsl {
         return this;
     }
 
-    public operator(operator:BT_ES_QUERY_LOGIC_OPERATOR):EsMatchQuery {
+    public operator(operator:ES_QUERY_LOGIC_OPERATOR):EsMatchQuery {
         this.setFieldProperty(this.fieldName, 'operator', operator);
         return this;
     }

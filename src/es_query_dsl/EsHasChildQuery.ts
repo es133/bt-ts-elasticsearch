@@ -2,7 +2,7 @@
 
 import { EsQueryDsl } from '../interface/EsQueryDsl';
 import {EsAbstractQueryDsl} from "./EsAbstractQueryDsl";
-import {BT_ES_RELEVANCE_SCORE_MODE} from "../type/BtEsEnums";
+import {ES_RELEVANCE_SCORE_MODE} from "../type/BtEsEnums";
 
 export class EsHasChildQuery extends EsAbstractQueryDsl {
     protected relationType: string;
@@ -19,7 +19,7 @@ export class EsHasChildQuery extends EsAbstractQueryDsl {
         return this;
     }
 
-    public scoreMode(scoreMode:BT_ES_RELEVANCE_SCORE_MODE):EsHasChildQuery {
+    public scoreMode(scoreMode:ES_RELEVANCE_SCORE_MODE):EsHasChildQuery {
         this.setProperty('score_mode', scoreMode);
         return this;
     }

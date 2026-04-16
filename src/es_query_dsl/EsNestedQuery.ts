@@ -2,7 +2,7 @@
 
 import { EsQueryDsl } from '../interface/EsQueryDsl';
 import {EsAbstractQueryDsl} from "./EsAbstractQueryDsl";
-import {BT_ES_RELEVANCE_SCORE_MODE, BT_ES_SCORE_CALC_MODE} from "../type/BtEsEnums";
+import {ES_RELEVANCE_SCORE_MODE, ES_SCORE_CALC_MODE} from "../type/BtEsEnums";
 
 export class EsNestedQuery extends EsAbstractQueryDsl {
     constructor(path:string, subQuery?:EsQueryDsl) {
@@ -18,7 +18,7 @@ export class EsNestedQuery extends EsAbstractQueryDsl {
         return this;
     }
 
-    public scoreMode(scoreMode:BT_ES_RELEVANCE_SCORE_MODE): EsNestedQuery {
+    public scoreMode(scoreMode:ES_RELEVANCE_SCORE_MODE): EsNestedQuery {
         this.setProperty('score_mode', scoreMode);
         return this;
     }

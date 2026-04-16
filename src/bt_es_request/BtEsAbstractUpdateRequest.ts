@@ -1,56 +1,77 @@
 'use strict';
 
 import { BtEsAbstractRequest } from './BtEsAbstractRequest';
+import { RoutingValue, ScriptDefinition } from '../type/EsRequestTypes';
 
 export class BtEsAbstractUpdateRequest extends BtEsAbstractRequest {
     constructor() {
         super();
-        this.requestParam['body'] = null;
+        this.param['body'] = null;
 
     }
 
     public setTimeout(duration:string):void {
-        this.requestParam['timeout'] = duration;
+        this.param['timeout'] = duration;
     }
 
     public setRetryOnConflict(value:number):void {
-        this.requestParam['retry_on_conflict'] = value;
+        this.param['retry_on_conflict'] = value;
     }
 
     public setId(docId: number|string):void {
-        this.requestParam['id'] = docId;
+        this.param['id'] = docId;
     }
 
     public setParentId(parentId:number|string):void {
-        this.requestParam['parent'] = parentId;
+        this.param['parent'] = parentId;
     }
 
-    public setRouting (routing:string):void {
-        this.requestParam['routing'] = routing;
+    public setRouting (routing:RoutingValue):void {
+        this.param['routing'] = routing;
     }
 
-    public setScript(script:any, lang:string) {
-        if (this.requestParam['body'] === null) {
-            this.requestParam['body'] = {};
+    public set timeout(duration:string) {
+        this.setTimeout(duration);
+    }
+
+    public set retry(value:number) {
+        this.setRetryOnConflict(value);
+    }
+
+    public set id(docId:number|string) {
+        this.setId(docId);
+    }
+
+    public set parentId(parentId:number|string) {
+        this.setParentId(parentId);
+    }
+
+    public set routing (routing:RoutingValue) {
+        this.setRouting(routing);
+    }
+
+    public setScript(script:ScriptDefinition | string, lang?:string) {
+        if (this.param['body'] === null) {
+            this.param['body'] = {};
         }
         if (script !== undefined && script !== null) {
-            this.requestParam['body']['script'] = script;
+            this.param['body']['script'] = script;
         }
         if (lang !== undefined && lang !== null) {
-            this.requestParam['body']['script']['lang'] = lang ;
+            this.param['body']['script']['lang'] = lang ;
         }
-        if (this.requestParam['body']['doc']) {
-            delete this.requestParam['body']['doc'];
+        if (this.param['body']['doc']) {
+            delete this.param['body']['doc'];
         }
     }
 
-    public setDocument(document:any) {
-        if (this.requestParam['body'] === null) {
-            this.requestParam['body'] = {};
+    public setDocument(document:Record<string, any>) {
+        if (this.param['body'] === null) {
+            this.param['body'] = {};
         }
-        this.requestParam['body']['doc'] = document;
-        if (this.requestParam['body']['script']) {
-            delete this.requestParam['body']['script'];
+        this.param['body']['doc'] = document;
+        if (this.param['body']['script']) {
+            delete this.param['body']['script'];
         }
     }
 

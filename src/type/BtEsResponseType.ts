@@ -1,5 +1,5 @@
 export type BtEsIndexResponseType = {
-    index:number;
+    index:string;
     id:number;
     version:number;
     result:string;
@@ -16,11 +16,38 @@ export type BtEsIndexResponseType = {
 }
 
 export type BtEsGetResponseType = {
-    index:number;
+    index:string;
     id:number;
     version:number;
     sequenceNumber:number;
     primaryTerm:number;
     found:boolean;
     source:any;
+}
+
+export type BtIndicesAnalyzeToken = {
+    end_offset: number;
+    position: number;
+    positionLength?: number;
+    start_offset: number;
+    token: string;
+    type: string;
+}
+
+export type BtEsUpdateByQueryResponseType = {
+    took : number,
+    timed_out: boolean,
+    total: number,
+    deleted: number,
+    batches: number,
+    version_conflicts: number,
+    noops: number,
+    retries: {
+        bulk: number,
+        search:number
+    },
+    throttled_millis: number,
+    requests_per_second: number,
+    throttled_until_millis: number,
+    failures : []
 }

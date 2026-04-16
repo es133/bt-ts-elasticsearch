@@ -1,70 +1,43 @@
-import {BtEsAbstractResponse} from './BtEsAbstractResponse';
+import {BtEsResponse} from "../interface/BtEsResponse";
+import {EsHits, EsShards, EsAggregationResult} from "../type/EsResponseTypes";
 
-export class BtEsSearchResponse extends BtEsAbstractResponse {
+export class BtEsSearchResponse<T = unknown> implements BtEsResponse {
 
-    protected took?:number;
-    protected scrollId?:string;
-    protected totalCount?:number;
-    protected maxScore?:number;
-    protected hits?:any;
+    public took?:number;
+    public timedOut?: boolean;
+    public scrollId?:string;
+    public pitId?:string;
+    public totalCount?:number;
+    public maxScore?:number | null;
+    public hits?:EsHits<T>;
+    public shards: EsShards;
+    public aggregations?:EsAggregationResult;
 
-    constructor(body:any, statusCode:number) {
-        super(statusCode);
-        this.took = body['took'];
-        if (body.hasOwnProperty('hits')) {
-            const hits = body['hits'];
-            if (hits.hasOwnProperty('total')) {
-                this.totalCount = hits['total']['value'];
-            }
-            if (hits.hasOwnProperty('max_score')) {
-                this.maxScore = hits['max_score'];
-            }
-            if (hits.hasOwnProperty('hits')) {
-                this.hits = hits['hits'];
-            }
+    constructor(response:any) {
+        this.took = response?.['took'];
+        this.timedOut = response?.['timed_out'];
+        if(response?.['hits']) {
+            this.hits = response?.['hits'];
+            this.totalCount = this.hits?.total?.value;
+            this.maxScore = this.hits?.max_score;
         }
-        if (body.hasOwnProperty('_scroll_id')) {
-            this.scrollId = body['_scroll_id'];
-        }
+        this.aggregations = response?.['aggregations'];
+        this.scrollId = response?.['scroll_id'];
+        this.pitId = response?.['pit_id'];
+        this.shards = response?.['shards'];
     }
 
-    public getResponseTime(): number {
-        if (this.took) {
-            return this.took;
-        } else {
-            return 0;
-        }
-    }
-
-    public getScrollId(): string | null {
-        if (this.scrollId) {
-            return this.scrollId;
-        } else {
-            return null;
-        }
-    }
-
-    public getTotalCount(): number {
-        if (this.totalCount) {
-            return this.totalCount;
-        } else {
-            return 0;
-        }
-    }
-
-    public getMaxScore(): number {
-        if (this.maxScore) {
-            return this.maxScore;
-        } else {
-            return 0;
-        }
-    }
-
-    public getHits(): any {
-        if (this.hits) {
-            return this.hits;
-        } else {
-            return null;
-        }
+    public toString(): string{
+        return JSON.stringify({
+            took: this.took,
+            timedOut: this.timedOut,
+            scrollId: this.scrollId,
+            pitId: this.pitId,
+            totalCount: this.totalCount,
+            maxScore: this.maxScore,
+            hits: this.hits,
+            shards: this.shards,
+            aggregations: this.aggregations,
+        })
     }
 }

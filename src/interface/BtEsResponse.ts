@@ -1,7 +1,7 @@
 export interface BtEsResponse {
-    status():number;
+    toString(): string;
 }
 
 export interface BtEsResponseConstructor {
-    new(body:any, statusCode:number):BtEsResponse;
+    new(body: any, statusCode: number): BtEsResponse;
 }

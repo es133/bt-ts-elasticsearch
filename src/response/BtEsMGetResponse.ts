@@ -1,15 +1,15 @@
 import {BtEsGetResponseType} from "../type/BtEsResponseType";
-import {BtEsAbstractResponse} from './BtEsAbstractResponse';
+import {BtEsResponse} from '../interface/BtEsResponse';
 
-export class BtEsMGetResponse extends BtEsAbstractResponse {
+export class BtEsMGetResponse implements BtEsResponse {
 
     protected resultList:Array<BtEsGetResponseType>;
 
-    constructor(body:any, statusCode:number) {
-        super(statusCode);
+    constructor(response:any) {
+        
         this.resultList = [];
-        if (body.hasOwnProperty('docs') && Array.isArray(body['docs'])) {
-            for (let doc of body['docs']) {
+        if (response.hasOwnProperty('docs') && Array.isArray(response['docs'])) {
+            for (let doc of response['docs']) {
 
                 this.resultList.push(
                     {

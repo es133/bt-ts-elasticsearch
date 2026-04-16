@@ -2,7 +2,7 @@
 
 import { EsQueryDsl } from '../interface/EsQueryDsl';
 import {EsAbstractQueryDsl} from "./EsAbstractQueryDsl";
-import {BT_ES_SCORE_CALC_MODE} from "../type/BtEsEnums";
+import {ES_SCORE_CALC_MODE} from "../type/BtEsEnums";
 
 export class EsFunctionScoreQuery extends EsAbstractQueryDsl {
     constructor(subQuery:EsQueryDsl){
@@ -40,7 +40,7 @@ export class EsFunctionScoreQuery extends EsAbstractQueryDsl {
         return this;
     }
 
-    public scoreMode(mode:BT_ES_SCORE_CALC_MODE): EsFunctionScoreQuery {
+    public scoreMode(mode:ES_SCORE_CALC_MODE): EsFunctionScoreQuery {
         /*
         multiply    scores are multiplied (default)
         sum         scores are summed
@@ -53,7 +53,7 @@ export class EsFunctionScoreQuery extends EsAbstractQueryDsl {
         return this;
     }
 
-    public boostMode(value:BT_ES_SCORE_CALC_MODE):EsFunctionScoreQuery {
+    public boostMode(value:ES_SCORE_CALC_MODE):EsFunctionScoreQuery {
         /*
         multiply    es_query_dsl score and function score is multiplied (default)
         replace     only function score is used, the es_query_dsl score is ignored

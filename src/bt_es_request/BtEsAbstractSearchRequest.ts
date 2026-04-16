@@ -1,62 +1,94 @@
 import { BtEsRequestUtil } from './BtEsRequestUtil';
 import { BtEsAbstractRequest } from './BtEsAbstractRequest';
-import {BT_ES_QUERY_PARAM, BT_ES_SEARCH_TYPE, BT_ES_VERSION_TYPE} from "../type/BtEsEnums";
+import {ES_QUERY_PARAM, ES_SEARCH_TYPE, ES_VERSION_TYPE} from "../type/BtEsEnums";
 import {EsQueryDsl} from "../interface/EsQueryDsl";
+import {EsRetriever} from "../interface/EsRetriever";
+import { ScriptFields, DocValueFields } from '../type/EsRequestTypes';
 
 export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
 
     protected sort:any;
     protected query:any;
+    protected retriever:any;
     protected highlight:any;
     protected aggregations:any;
     protected suggest:any;
     protected postFilter:any;
     protected scroll:any;
     protected scrollId:string | null;
+    protected searchAfter: null | any[];
+    protected pit: null | {id: string, keep_alive: string};
 
     constructor(){
         super();
-        this.requestParam[BT_ES_QUERY_PARAM.SEARCH_TYPE] = BT_ES_SEARCH_TYPE.QUERY_THEN_FETCH;
-        this.requestParam[BT_ES_QUERY_PARAM.EXPLAIN] = false;
-        this.requestParam[BT_ES_QUERY_PARAM.BODY] = {};
-        this.requestParam[BT_ES_QUERY_PARAM.SOURCE] = false;
-        this.requestParam[BT_ES_QUERY_PARAM.TRACK_TOTAL_HITS] = true;
+        this.param[ES_QUERY_PARAM.SEARCH_TYPE] = ES_SEARCH_TYPE.QUERY_THEN_FETCH;
+        this.param[ES_QUERY_PARAM.EXPLAIN] = false;
+        this.param[ES_QUERY_PARAM.BODY] = {};
+        this.param[ES_QUERY_PARAM.SOURCE] = false;
+        this.param[ES_QUERY_PARAM.TRACK_TOTAL_HITS] = true;
         this.sort = null;
         this.query = null;
+        this.retriever = null;
         this.highlight = null;
         this.aggregations = null;
         this.suggest = null;
         this.postFilter = null;
         this.scroll = null;
         this.scrollId = null;
+        this.searchAfter = null;
+        this.pit = null;
     }
 
     public setSize(size:number):void {
-        this.requestParam[BT_ES_QUERY_PARAM.SIZE] = size;
+        this.param[ES_QUERY_PARAM.SIZE] = size;
     }
 
     public getSize():number {
-        return this.requestParam[BT_ES_QUERY_PARAM.SIZE];
+        return this.param[ES_QUERY_PARAM.SIZE];
     }
 
     public setFrom(from:number):void {
-        this.requestParam[BT_ES_QUERY_PARAM.FROM] = from;
+        this.param[ES_QUERY_PARAM.FROM] = from;
     }
 
     public getFrom():number {
-        return this.requestParam[BT_ES_QUERY_PARAM.FROM];
+        return this.param[ES_QUERY_PARAM.FROM];
     }
 
-    public setSearchType(searchType:BT_ES_SEARCH_TYPE):void {
-        this.requestParam[BT_ES_QUERY_PARAM.SEARCH_TYPE] = searchType;
+    public set size(size:number) {
+        this.setSize(size);
+    }
+
+    public get size():number {
+        return this.getSize();
+    }
+
+    public set from(from) {
+        this.setFrom(from);
+    }
+
+    public get from():number {
+        return this.getFrom();
+    }
+
+    public setSearchType(searchType:ES_SEARCH_TYPE):void {
+        this.param[ES_QUERY_PARAM.SEARCH_TYPE] = searchType;
+    }
+
+    public set searchType(searchType:ES_SEARCH_TYPE) {
+        this.setSearchType(searchType);
     }
 
     public setTimeout(timeout:number):void {
-        this.requestParam[BT_ES_QUERY_PARAM.TIMEOUT] = timeout;
+        this.param[ES_QUERY_PARAM.TIMEOUT] = timeout;
     }
 
-    public setTrackTotalHits(value:boolean) {
-        this.requestParam[BT_ES_QUERY_PARAM.TRACK_TOTAL_HITS] = value;
+    public set timeout(timeout:number) {
+        this.setTimeout(timeout);
+    }
+
+    public set trackTotalHits(value:boolean) {
+        this.param[ES_QUERY_PARAM.TRACK_TOTAL_HITS] = value;
     }
 
     public addSort(sort:any) {
@@ -87,19 +119,19 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         Object.assign(this.highlight, BtEsRequestUtil.buildQueryParam(highlight));
     }
 
-    public setScriptFields(scriptFields:any) {
+    public setScriptFields(scriptFields:ScriptFields) {
         if (scriptFields !== undefined && scriptFields !== null) {
-            this.requestParam[BT_ES_QUERY_PARAM.SCRIPT_FIELDS] = scriptFields;
+            this.param[ES_QUERY_PARAM.SCRIPT_FIELDS] = scriptFields;
         }
     }
 
-    public setDocValueFields(fields:any) {
+    public setDocValueFields(fields:DocValueFields) {
         if (fields !== undefined && fields !== null) {
-            this.requestParam[BT_ES_QUERY_PARAM.DOC_VALUE_FIELDS] = fields;
+            this.param[ES_QUERY_PARAM.DOC_VALUE_FIELDS] = fields;
         }
     }
 
-    public setScroll(scroll:any) {
+    public setScroll(scroll:string) {
         if (scroll !== undefined && scroll !== null) {
             this.scroll = scroll;
         }
@@ -111,8 +143,43 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         }
     }
 
+    public setSearchAfter(value: any): void {
+        if (value !== undefined && value !== null) {
+            this.searchAfter = [value];
+        }
+    }
+
+    public getSearchAfter(): any {
+        return this.searchAfter;
+    }
+
+    public setPit(id: string, keepAlive: string): void {
+        if (!this.pit) {
+            this.pit = { id: id, keep_alive: keepAlive }
+        } else {
+            this.pit.id = id;
+            this.pit.keep_alive = keepAlive;
+        }
+    }
+
+    public getPit(): null | {id: string, keep_alive: string} {
+        return this.pit;
+    }
+
     public setQueryDsl(queryDsl:EsQueryDsl):void {
         this.query = queryDsl;
+    }
+
+    public getQueryDsl():EsQueryDsl {
+        return this.query;
+    }
+
+    public setRetriever(retriever:EsRetriever):void {
+        this.retriever = retriever;
+    }
+
+    public getRetriever():EsRetriever {
+        return this.retriever;
     }
 
     public getScrollQuery() {
@@ -126,26 +193,28 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         return scrollParam;
     }
 
-    public getRequestParam() {
-        if (this.query !== null) {
-            this.requestParam[BT_ES_QUERY_PARAM.BODY][BT_ES_QUERY_PARAM.QUERY] = BtEsRequestUtil.buildQueryParam(this.query);
+    public getParam() {
+        if (this.retriever !== null) {
+            this.param[ES_QUERY_PARAM.BODY][ES_QUERY_PARAM.RETRIEVER] = BtEsRequestUtil.buildRetrieverParam(this.retriever);
+        } else if (this.query !== null) {
+            this.param[ES_QUERY_PARAM.BODY][ES_QUERY_PARAM.QUERY] = BtEsRequestUtil.buildQueryParam(this.query);
         }
         if (this.highlight !== null) {
-            Object.assign(this.requestParam[BT_ES_QUERY_PARAM.BODY], this.highlight);
+            Object.assign(this.param[ES_QUERY_PARAM.BODY], this.highlight);
         }
         if (this.aggregations !== null) {
-            Object.assign(this.requestParam[BT_ES_QUERY_PARAM.BODY], this.aggregations);
+            Object.assign(this.param[ES_QUERY_PARAM.BODY], this.aggregations);
         }
         if (this.sort !== null) {
-            Object.assign(this.requestParam[BT_ES_QUERY_PARAM.BODY], this.sort);
+            Object.assign(this.param[ES_QUERY_PARAM.BODY], this.sort);
         }
         if (this.postFilter !== null) {
-            Object.assign(this.requestParam[BT_ES_QUERY_PARAM.BODY], BtEsRequestUtil.buildQueryParam(this.postFilter));
+            Object.assign(this.param[ES_QUERY_PARAM.BODY], BtEsRequestUtil.buildQueryParam(this.postFilter));
         }
         if (this.scroll !== null) {
-            this.requestParam[BT_ES_QUERY_PARAM.SCROLL] = this.scroll;
+            this.param[ES_QUERY_PARAM.SCROLL] = this.scroll;
         }
 
-        return this.requestParam;
+        return this.param;
     }
 }

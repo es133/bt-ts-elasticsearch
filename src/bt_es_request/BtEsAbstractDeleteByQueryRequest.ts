@@ -5,8 +5,9 @@ import { BtEsAbstractUpdateByQueryRequest } from './BtEsAbstractUpdateByQueryReq
 export class BtEsAbstractDeleteByQueryRequest extends BtEsAbstractUpdateByQueryRequest {
     constructor() {
         super();
-        this.requestParam['body'] = null;
+        this.param['body'] = null;
     }
 }
+
 
 

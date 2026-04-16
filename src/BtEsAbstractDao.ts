@@ -15,6 +15,10 @@ import { EsSimulatePipelineApi } from "./es_ingest_api/EsSimulatePipelineApi";
 import { BtEsGetResponse } from "./response/BtEsGetResponse";
 import { BtEsMGetResponse } from "./response/BtEsMGetResponse";
 import { BtEsBulkIndexResponse } from "./response/BtEsBulkIndexResponse";
+import { BtIndicesAnalyzeToken } from './type/BtEsResponseType';
+import {BtEsAbstractDeleteByQueryRequest} from './bt_es_request/BtEsAbstractDeleteByQueryRequest';
+import {BtEsDeleteByQueryResponse} from './response/BtEsDeleteByQueryResponse';
+import {BtEsUpdateByQueryResponse} from './response/BtEsUpdateByQueryResponse';
 
 export class BtEsAbstractDao {
 
@@ -24,40 +28,43 @@ export class BtEsAbstractDao {
         this.esClient = new Client(config.buildConnectionConfig());
     }
 
-    async createIndex(indexName:string, mapping:any): Promise<BtEsGenericResponse> {
-        let response = await this.esClient.indices.create({
+    public async createIndex(indexName:string, mapping:any, setting: any): Promise<BtEsGenericResponse> {
+        const response = await this.esClient.indices.create({
             index: indexName,
-            body:mapping
+            mappings: mapping,
+            settings: setting
         });
-        return new BtEsGenericResponse(response['body'], <number>response['statusCode']);
+        return new BtEsGenericResponse(response);
     }
 
-    async indexExists(indexName:string):Promise<boolean> {
-        let response = await this.esClient.indices.exists({index:indexName});
-        return response['body'];
+    public async clientBulkApi(operations:any): Promise<BtEsGenericResponse> {
+        return await this.esClient.bulk({refresh: true, operations: operations});
     }
 
-    async deleteIndex(indexName:string): Promise<BtEsGenericResponse> {
-        let response = await this.esClient.indices.delete({index: indexName});
-        return new BtEsGenericResponse(response['body'], <number>response['statusCode']);
+    public async indexExists(indexName:string):Promise<boolean> {
+        return await this.esClient.indices.exists({index:indexName});
     }
 
-    async getIndexListWithAliasName(aliasName:string):Promise<Array<string>> {
-        let response = await this.esClient.indices.getAlias({name: aliasName});
-        return Object.keys(response['body']);
+    public async deleteIndex(indexName:string): Promise<BtEsGenericResponse> {
+        const response = await this.esClient.indices.delete({index: indexName});
+        return new BtEsGenericResponse(response);
     }
 
-    async existsAlias(aliasName:string):Promise<boolean> {
-        let response = await this.esClient.indices.existsAlias({name: aliasName});
-        return response['body'];
+    public async getIndexListWithAliasName(aliasName:string):Promise<Array<string>> {
+        const response = await this.esClient.indices.getAlias({name: aliasName});
+        return Object.keys(response);
     }
 
-    async putAlias(indexName:string, aliasName:string):Promise<BtEsGenericResponse> {
-        let response = await this.esClient.indices.putAlias({index:indexName, name: aliasName});
-        return new BtEsGenericResponse(response['body'], <number>response['statusCode']);
+    public async existsAlias(aliasName:string):Promise<boolean> {
+        return await this.esClient.indices.existsAlias({name: aliasName});
     }
 
-    async exchangeAlias( putIndexList:Array<string>, removeIndexList:Array<string>, aliasName:string):Promise<BtEsGenericResponse> {
+    public async putAlias(indexName:string, aliasName:string):Promise<BtEsGenericResponse> {
+        const response = await this.esClient.indices.putAlias({index:indexName, name: aliasName});
+        return new BtEsGenericResponse(response);
+    }
+
+    public async exchangeAlias( putIndexList:Array<string>, removeIndexList:Array<string>, aliasName:string):Promise<BtEsGenericResponse> {
 
         const query:any = { actions:[] };
         for (let putIndexName of putIndexList) {
@@ -68,79 +75,60 @@ export class BtEsAbstractDao {
             query['actions'].push({remove: {index: removeIndexName, alias:aliasName}});
         }
 
-        let response = await this.esClient.indices.updateAliases({body:query});
-        return new BtEsGenericResponse(response['body'], <number>response['statusCode']);
+        let response = await this.esClient.indices.updateAliases(query);
+        return new BtEsGenericResponse(response);
     }
 
-    async deleteAlias(indexName:string, aliasName:string): Promise<BtEsGenericResponse> {
-        let response = await this.esClient.indices.deleteAlias({index:indexName, name: aliasName});
-        return new BtEsGenericResponse(response['body'], <number>response['statusCode']);
+    public async deleteAlias(indexName:string, aliasName:string): Promise<BtEsGenericResponse> {
+        const response = await this.esClient.indices.deleteAlias({index:indexName, name: aliasName});
+        return new BtEsGenericResponse(response);
     }
 
-    async createTemplate(templateName:string, template:any): Promise<BtEsGenericResponse> {
-        let response = await this.esClient.indices.putTemplate(
-            {
-                name: templateName,
-                body: template
-            }
-        );
-        return new BtEsGenericResponse(response['body'], <number>response['statusCode']);
+    public async createIndexTemplate(templateName: string, template: any): Promise<BtEsGenericResponse> {
+        const response = await this.esClient.indices.putIndexTemplate({
+            name: templateName,
+            body: template
+        });
+        return new BtEsGenericResponse(response);
     }
 
-    async deleteTemplate(templateName:string): Promise<BtEsGenericResponse> {
-        let response = await this.esClient.indices.deleteTemplate(
-            {
-                name: templateName,
-            }
-        );
-        return new BtEsGenericResponse(response['body'], <number>response['statusCode']);
+    public async deleteIndexTemplate(templateName:string): Promise<BtEsGenericResponse> {
+        const response = await this.esClient.indices.deleteIndexTemplate({ name: templateName });
+        return new BtEsGenericResponse(response);
     }
 
-    async requestAnalyze(analyzeRequest:EsAnalyzeApi):Promise<Array<any>> {
-
-        let response = await this.esClient.indices.analyze(analyzeRequest.buildRequest());
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return response['body']['tokens'];
+    public async requestAnalyze(analyzeRequest:EsAnalyzeApi):Promise<BtIndicesAnalyzeToken[] | undefined> {
+        const response = await this.esClient.indices.analyze(analyzeRequest.buildRequest());
+        return response.tokens;
     }
 
-    async ingestSimulate(simulateRequest:EsSimulatePipelineApi):Promise<any> {
-        let response = await this.esClient.ingest.simulate(simulateRequest.buildRequest());
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return response['body'];
+    public async ingestSimulate(simulateRequest:EsSimulatePipelineApi):Promise<any> {
+        const response = await this.esClient.ingest.simulate(simulateRequest.buildRequest());
+        return response;
     }
 
-    async requestSearch(request:BtEsAbstractSearchRequest):Promise<BtEsSearchResponse> {
+    public async requestSearch<T = unknown>(request:BtEsAbstractSearchRequest):Promise<BtEsSearchResponse<T>> {
 
-        let response = await this.esClient.search(request.getRequestParam());
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsSearchResponse(response['body'], <number>response['statusCode']);
+        const response = await this.esClient.search(request.getParam());
+        return new BtEsSearchResponse(response);
     }
 
-    async requestScroll(scrollId:string, scrollTimeout:string):Promise<BtEsSearchResponse> {
+    public async requestScroll<T = unknown>(scrollId:string, scrollTimeout:string):Promise<BtEsSearchResponse<T>> {
 
         if (scrollId === undefined || scrollId === null) {
             return Promise.reject('Invalid parameter');
         }
 
-        let param = {
+        const param = {
             scroll_id: scrollId,
             scroll: scrollTimeout
         };
 
-        let response = await this.esClient.scroll(param);
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsSearchResponse(response['body'], <number>response['statusCode']);
+        const response = await this.esClient.scroll(param);
+        return new BtEsSearchResponse(response);
     }
 
-    async deleteScroll(scrollId:string | Array<string>):Promise<BtEsGenericResponse> {
+    public async deleteScroll(scrollId:string | Array<string>):Promise<BtEsGenericResponse> {
         if (scrollId === undefined || scrollId === null) {
             return Promise.reject('Invalid parameter');
         }
@@ -150,37 +138,33 @@ export class BtEsAbstractDao {
         };
 
         let response = await this.esClient.clearScroll(param);
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsGenericResponse(response['body'], <number>response['statusCode']);
+        return new BtEsGenericResponse(response);
     }
 
-    async requestGet(request:BtEsAbstractGetRequest):Promise<BtEsGetResponse> {
-        let response = await this.esClient.get(request.getRequestParam());
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsGetResponse(response['body'], <number>response['statusCode']);
+    public async openPointInTime(request: any): Promise<string> {
+        const response = await this.esClient.openPointInTime(request);
+        return response?.id;
     }
 
-    async requestMGet(request:BtEsAbstractMGetRequest):Promise<BtEsMGetResponse> {
-
-        let response = await this.esClient.mget(request.getRequestParam());
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsMGetResponse(response['body'], <number>response['statusCode']);
+    public async requestGet(request:BtEsAbstractGetRequest):Promise<BtEsGetResponse> {
+        const response = await this.esClient.get(request.getParam());
+        return new BtEsGetResponse(response);
     }
 
-    async requestPut(request:BtEsAbstractPutRequest, document:any):Promise<BtEsDocumentIndexResponse> {
+    public async requestMGet(request:BtEsAbstractMGetRequest):Promise<BtEsMGetResponse> {
+
+        const response = await this.esClient.mget(request.getParam());
+        return new BtEsMGetResponse(response);
+    }
+
+    public async requestPut<T = any>(request:BtEsAbstractPutRequest, document:T):Promise<BtEsDocumentIndexResponse> {
 
         let param: any = {};
-        Object.assign(param, request.getRequestParam());
+        Object.assign(param, request.getParam());
 
         //set Id
-        if (document.hasOwnProperty('id')) {
-            param['id'] = document['id'];
+        if ((document as any).hasOwnProperty('id')) {
+            param['id'] = (document as any)['id'];
         } else if (!param['id']) {
             delete param['id'];
         }
@@ -189,8 +173,8 @@ export class BtEsAbstractDao {
         param['body'] = document;
 
         let opType = null;
-        if (request.hasOwnProperty('opType')) {
-            opType = request.getOpType();
+        if (request.hasOwnProperty('op_type')) {
+            opType = request.opType;
         }
 
         let response = null;
@@ -200,79 +184,66 @@ export class BtEsAbstractDao {
             response = await this.esClient.index(param);
         }
 
-        console.log('PUT RESPONSE:', JSON.stringify(response, null, 2));
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsDocumentIndexResponse(response['body'], <number>response['statusCode']);
+        //console.log('PUT RESPONSE:', JSON.stringify(response, null, 2));
+        return new BtEsDocumentIndexResponse(response);
     }
 
-    async requestUpdate(request:BtEsAbstractUpdateRequest):Promise<BtEsDocumentIndexResponse> {
+    public async requestUpdate(request:BtEsAbstractUpdateRequest):Promise<BtEsDocumentIndexResponse> {
 
         let param:any = {};
-        Object.assign(param, request.getRequestParam());
-        let response = await this.esClient.update(param );
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsDocumentIndexResponse(response['body'], <number>response['statusCode']);
+        Object.assign(param, request.getParam());
+        const response = await this.esClient.update(param );
+        return new BtEsDocumentIndexResponse(response);
     }
 
-    async requestUpdateByQuery(request:BtEsAbstractUpdateRequest):Promise<BtEsDocumentIndexResponse> {
+    public async requestUpdateByQuery(request:BtEsAbstractUpdateRequest):Promise<BtEsUpdateByQueryResponse> {
 
         let param:any = {};
-        Object.assign(param, request.getRequestParam());
-        let response = await this.esClient.updateByQuery(param);
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsDocumentIndexResponse(response['body'], <number>response['statusCode']);
+        Object.assign(param, request.getParam());
+        const response = await this.esClient.updateByQuery(param);
+        return new BtEsUpdateByQueryResponse(response);
     }
 
-    async requestDelete(request:BtEsAbstractDeleteRequest ):Promise<BtEsDocumentIndexResponse> {
+    public async requestDelete(request:BtEsAbstractDeleteRequest ):Promise<BtEsDocumentIndexResponse> {
 
-        let response = await this.esClient.delete(request.getRequestParam());
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsDocumentIndexResponse(response['body'], <number>response['statusCode']);
+        const response = await this.esClient.delete(request.getParam());
+        return new BtEsDocumentIndexResponse(response);
     }
 
-    async requestPutBulk(request:BtEsAbstractPutRequest, documents:Array<any>):Promise<BtEsBulkIndexResponse> {
+    public async requestPutBulk<T = any>(request:BtEsAbstractPutRequest, documents:Array<T>):Promise<BtEsBulkIndexResponse> {
 
         let response = null;
         let param:any = {};
-        Object.assign(param, request.getRequestParam());
+        Object.assign(param, request.getParam());
         param['body'] = [];
 
         //Check routing
         let routingField = null;
-        if (param.hasOwnProperty('routingField')) {
-            routingField = param['routingField'];
-            delete param['routingField'];
+        if (param.hasOwnProperty('routing')) {
+            routingField = param['routing'];
+            delete param['routing'];
         }
 
         //Check op type
         let opType = null;
 
-        if (param.hasOwnProperty('opType')) {
-            opType = param['opType'];
-            delete param['opType'];
+        if (param.hasOwnProperty('op_type')) {
+            opType = param['op_type'];
+            delete param['op_type'];
         }
 
         for (let i = 0 ; i < documents.length ; i++) {
             let document = documents[i];
             let item:any = {};
 
-            item['_index'] = request.getIndex();
-            item['_type'] = request.getType();
+            item['_index'] = request.index;
 
             if (routingField !== null) {
-                item['routing'] = document[routingField];
+                item['routing'] = (document as any)[routingField];
             }
 
-            if (document.hasOwnProperty('id')) {
-                item['_id'] = document.id;
+            if ((document as any).hasOwnProperty('id')) {
+                item['_id'] = (document as any).id;
             }
 
             if (opType === 'create') {
@@ -285,80 +256,72 @@ export class BtEsAbstractDao {
         }
 
         response = await this.esClient.bulk(param);
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsBulkIndexResponse(response['body'], <number>response['statusCode']);
+        return new BtEsBulkIndexResponse(response);
     }
 
-    async requestUpdateBulk(request:BtEsAbstractPutRequest, documents:Array<any>):Promise<BtEsBulkIndexResponse> {
+    public async requestUpdateBulk<T = any>(request:BtEsAbstractPutRequest, documents:Array<T>):Promise<BtEsBulkIndexResponse> {
 
         let response = null;
         let param:any = {};
-        Object.assign(param, request.getRequestParam());
+        Object.assign(param, request.getParam());
         param['body'] = [];
 
         //Check routing
         let routingField = null;
-        if (param.hasOwnProperty('routingField')) {
-            routingField = param['routingField'];
-            delete param['routingField'];
+        if (param.hasOwnProperty('routing')) {
+            routingField = param['routing'];
+            delete param['routing'];
+        }
+
+        //Check op type
+        if (param.hasOwnProperty('op_type')) {
+            delete param['op_type'];
         }
 
         for (let i = 0 ; i < documents.length ; i++) {
             let document = documents[i];
             let item:any = {};
 
-            item['_index'] = request.getIndex();
-            item['_type'] = request.getType();
+            item['_index'] = request.index;
 
             if (routingField !== null) {
-                item['routing'] = document[routingField];
+                item['routing'] = (document as any)[routingField];
             }
 
-            if (document.hasOwnProperty('id')) {
-                item['_id'] = document.id;
+            if ((document as any).hasOwnProperty('id')) {
+                item['_id'] = (document as any).id;
             }
             param['body'].push({'update': item});
             param['body'].push({'doc': document});
         }
 
         response = await this.esClient.bulk(param);
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsBulkIndexResponse(response['body'], <number>response['statusCode']);
+        return new BtEsBulkIndexResponse(response);
     }
 
-    async requestDeleteBulk(request:BtEsAbstractDeleteRequest, docIds:Array<number|string>):Promise<BtEsBulkIndexResponse> {
+    public async requestDeleteBulk(request:BtEsAbstractDeleteRequest, docIds:Array<number|string>):Promise<BtEsBulkIndexResponse> {
 
         let response = null;
         let param:any = {};
-        Object.assign(param, request.getRequestParam());
+        Object.assign(param, request.getParam());
         param['body'] = [];
 
         //Check op type
         for (let i = 0 ; i < docIds.length ; i++) {
             let item:any = {};
 
-            item['_index'] = request.getIndex();
-            item['_type'] = request.getType();
+            item['_index'] = request.index;
             item['_id'] = docIds[i];
             param['body'].push({'delete': item});
         }
         response = await this.esClient.bulk(param);
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsBulkIndexResponse(response['body'], <number>response['statusCode']);
+        return new BtEsBulkIndexResponse(response);
     }
 
-    async requestDeleteByQuery(request:BtEsAbstractSearchRequest):Promise<BtEsDocumentIndexResponse> {
-        let response = await this.esClient.deleteByQuery(request.getRequestParam());
-        if (response['body'] && response['body']['error']) {
-            return Promise.reject(response['body']['error']);
-        }
-        return new BtEsDocumentIndexResponse(response['body'], <number>response['statusCode']);
+    public async requestDeleteByQuery(request:BtEsAbstractDeleteByQueryRequest):Promise<BtEsDeleteByQueryResponse> {
+        const response = await this.esClient.deleteByQuery(request.getParam());
+        console.log('RESPONSE:', JSON.stringify(response, null, 2));
+        return new BtEsDeleteByQueryResponse(response);
     }
 }
 

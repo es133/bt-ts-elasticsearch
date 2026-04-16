@@ -1,58 +1,54 @@
-import {BtEsAbstractResponse} from './BtEsAbstractResponse';
+import {BtEsResponse} from "../interface/BtEsResponse";
 
-export class BtEsGenericResponse extends BtEsAbstractResponse {
+export class BtEsGenericResponse implements BtEsResponse {
 
-    protected acknowledged?:boolean;
-    protected shardsAcknowledged?:boolean;
-    protected targetIndex?:string;
-    protected succeeded?:boolean;
+    public statusCode?:number;
+    public acknowledged?:boolean;
+    public shardsAcknowledged?:boolean;
+    public targetIndex?:string;
+    public succeeded?:boolean;
+    public errors?: boolean;
+    public items?: any;
+    public took?: number;
 
-    constructor(body:any, statusCode:number) {
-        super(statusCode);
-        if (body['acknowledged']) {
-            this.acknowledged = body['acknowledged'];
-        }
-        if (body['shards_acknowledged']) {
-            this.shardsAcknowledged = body['shards_acknowledged'];
-        }
-        if (body['index']) {
-            this.targetIndex = body['index']
-        }
-
-        if (body['succeeded']) {
-            this.succeeded= body['succeeded']
-        }
+    constructor(response: any) {
+        this.statusCode = response?.['status'];
+        this.acknowledged = response?.['acknowledged'];
+        this.shardsAcknowledged = response?.['shards_acknowledged'];
+        this.targetIndex = response?.['index'];
+        this.succeeded = response?.['succeeded'];
+        this.errors = response?.['errors'];
+        this.items = response?.['items'];
+        this.took = response?.['took'];
     }
 
-    public getAcknowledged(): boolean {
+    public toString(): string{
+        let response = {};
+        if (this.statusCode) {
+            Object.assign(response, {statusCode: this.statusCode});
+        }
         if (this.acknowledged) {
-            return this.acknowledged;
-        } else {
-            return false;
+            Object.assign(response, {acknowledged: this.acknowledged});
         }
-    }
-
-    public getShardsAcknowledged(): boolean {
         if (this.shardsAcknowledged) {
-            return this.shardsAcknowledged;
-        } else {
-            return false;
+            Object.assign(response, {shardAcknowledged: this.shardsAcknowledged});
         }
-    }
-
-    public getTargetIndex(): string | null {
         if (this.targetIndex) {
-            return this.targetIndex;
-        } else {
-            return null;
+            Object.assign(response, {targetIndex: this.targetIndex});
         }
-    }
-
-    public getSucceeded(): boolean {
         if (this.succeeded) {
-            return this.succeeded;
-        } else {
-            return false;
+            Object.assign(response, {succeed: this.succeeded});
         }
+        if (this.errors) {
+            Object.assign(response, {errors: this.errors});
+        }
+        if (this.items) {
+            Object.assign(response, {items: this.items});
+        }
+        if (this.took) {
+            Object.assign(response, {took: this.took});
+        }
+
+        return JSON.stringify(response)
     }
 }

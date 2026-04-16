@@ -2,7 +2,7 @@
 
 import { EsQueryDsl } from '../interface/EsQueryDsl';
 import {EsAbstractQueryDsl} from "./EsAbstractQueryDsl";
-import {BT_ES_QUERY_LOGIC_OPERATOR} from "../type/BtEsEnums";
+import {ES_QUERY_LOGIC_OPERATOR} from "../type/BtEsEnums";
 
 export class EsSimpleQueryStringQuery extends EsAbstractQueryDsl {
     constructor(fields?:Array<string>, query?:string ) {
@@ -31,7 +31,7 @@ export class EsSimpleQueryStringQuery extends EsAbstractQueryDsl {
         return this;
     }
 
-    public defaultOperator(operator:BT_ES_QUERY_LOGIC_OPERATOR): EsSimpleQueryStringQuery {
+    public defaultOperator(operator:ES_QUERY_LOGIC_OPERATOR): EsSimpleQueryStringQuery {
         this.setProperty('default_operator', operator);
         return this;
     }

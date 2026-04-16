@@ -1,9 +1,11 @@
-
-import { BtEsConfig } from "./interface/BtEsConfig";
+export class BtElasticSearch {
+    constructor() {
+    }
+}
 
 export * from './type/BtEsEnums';
+
 export { BtEsAbstractDao } from './BtEsAbstractDao';
-export { EsQueryBuilder } from './es_query_dsl/EsQueryBuilder';
 export { EsAggregationBuilder } from './es_search_option/aggs/EsAggregationBuilder';
 export { EsSearchOptionBuilder } from './es_search_option/EsSearchOptionBuilder';
 export { EsScoreFunctionBuilder } from './es_score_function/EsScoreFunctionBuilder';
@@ -20,10 +22,20 @@ export { BtEsAbstractUpdateByQueryRequest } from './bt_es_request/BtEsAbstractUp
 export { BtEsAbstractDeleteByQueryRequest } from './bt_es_request/BtEsAbstractDeleteByQueryRequest';
 export { BtEsAbstractConfig } from './BtEsAbstractConfig';
 export { BtEsConfig } from './interface/BtEsConfig';
+export { EsQueryDsl } from './interface/EsQueryDsl'
+export { EsRetriever } from './interface/EsRetriever';
+
+export { EsRetrieverBuilder } from './es_retriever/EsRetrieverBuilder';
+export { EsAbstractRetriever } from './es_retriever/EsAbstractRetriever';
+export { EsStandardRetriever } from './es_retriever/EsStandardRetriever';
+export { EsKnnRetriever } from './es_retriever/EsKnnRetriever';
+export { EsRrfRetriever } from './es_retriever/EsRrfRetriever';
 
 export { BtEsSearchResponse } from './response/BtEsSearchResponse';
 export { BtEsDocumentIndexResponse } from './response/BtEsDocumentIndexResponse';
 export { BtEsBulkIndexResponse } from './response/BtEsBulkIndexResponse';
+export { BtEsGenericResponse } from './response/BtEsGenericResponse';
 export { BtEsGetResponse } from './response/BtEsGetResponse';
 export { BtEsMGetResponse } from './response/BtEsMGetResponse';
 
+export * from './es_query_dsl/BtEsQueryDsl';

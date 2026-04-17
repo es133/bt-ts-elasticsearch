@@ -7,11 +7,11 @@
   },
   "types": "dist/BtElasticSearch.d.ts",
   "dependencies": {
-    "@elastic/elasticsearch": "^9.2.0",
-    "@types/node": "^24.10.8"
+    "@elastic/elasticsearch": "^9.2.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.8",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.53.0",
     "jest": "^30.2.0",

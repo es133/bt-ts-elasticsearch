@@ -9,7 +9,7 @@ export class BtEsAbstractResponse implements BtEsResponse {
     }
 
     public status(): number {
-        return 0;
+        return this.statusCode;
     }
 
 }

@@ -1,11 +1,9 @@
-export class BtElasticSearch {
-    constructor() {
-    }
-}
-
 export * from './type/BtEsEnums';
 
 export { BtEsAbstractDao } from './BtEsAbstractDao';
+export { BtEsSearchDao } from './BtEsSearchDao';
+export { BtEsDocumentDao } from './BtEsDocumentDao';
+export { BtEsIndexManagementDao } from './BtEsIndexManagementDao';
 export { EsAggregationBuilder } from './es_search_option/aggs/EsAggregationBuilder';
 export { EsSearchOptionBuilder } from './es_search_option/EsSearchOptionBuilder';
 export { EsScoreFunctionBuilder } from './es_score_function/EsScoreFunctionBuilder';

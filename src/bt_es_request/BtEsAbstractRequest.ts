@@ -20,11 +20,7 @@ export class BtEsAbstractRequest {
     }
 
     public setSource(option:boolean | Array<string>):void {
-        if (option instanceof Boolean) {
-            this.param[ES_QUERY_PARAM.SOURCE] = true;
-        } else {
-            this.param[ES_QUERY_PARAM.SOURCE] = option;
-        }
+        this.param[ES_QUERY_PARAM.SOURCE] = option;
     }
 
     public setVersion(value:boolean):void {
@@ -32,7 +28,7 @@ export class BtEsAbstractRequest {
     }
 
     public setVersionType(versionType:ES_VERSION_TYPE):void {
-        this.param[ES_QUERY_PARAM.VERSION] = versionType;
+        this.param[ES_QUERY_PARAM.VERSION_TYPE] = versionType;
     }
 
     public setStoredField(fields:Array<string>):void {

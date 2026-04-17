@@ -11,6 +11,10 @@ export class EsScriptSort extends EsAbstractQueryDsl {
         }
     }
 
+    public isEsQueryDsl(): boolean {
+        return false;
+    }
+
     public script(script:any): EsScriptSort {
         this.setProperty('script', script);
         return this;

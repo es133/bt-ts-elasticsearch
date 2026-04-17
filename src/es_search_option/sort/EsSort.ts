@@ -13,6 +13,10 @@ export class EsSort extends EsAbstractQueryDsl {
         }
     }
 
+    public isEsQueryDsl(): boolean {
+        return false;
+    }
+
     public order(order:ES_SORT_ORDER): EsSort {
         this.setProperty('order', order);
         return this;

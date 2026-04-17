@@ -51,6 +51,7 @@ export enum ES_QUERY_PARAM {
     INDEX = 'index',
     SOURCE = '_source',
     VERSION = 'version',
+    VERSION_TYPE = 'version_type',
     SEARCH_TYPE = 'search_type',
     SIZE = 'size',
     FROM = 'from',

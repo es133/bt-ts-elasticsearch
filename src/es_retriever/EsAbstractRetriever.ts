@@ -2,7 +2,7 @@ import {EsRetriever} from '../interface/EsRetriever';
 
 export class EsAbstractRetriever implements EsRetriever {
     protected retrieverName: string;
-    protected retrieverBody: any;
+    protected retrieverBody: Record<string, any>;
 
     constructor(name: string) {
         this.retrieverName = name;
@@ -14,7 +14,7 @@ export class EsAbstractRetriever implements EsRetriever {
         return this.retrieverName;
     }
 
-    body(): any {
+    body(): Record<string, any> {
         return this.retrieverBody;
     }
 

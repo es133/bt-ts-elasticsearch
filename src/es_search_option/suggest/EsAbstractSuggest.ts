@@ -3,7 +3,7 @@ import { EsQueryDsl } from '../../interface/EsQueryDsl';
 
 export class EsAbstractSuggest implements EsQueryDsl {
     protected suggestName: string;
-    protected suggestBody: any;
+    protected suggestBody: Record<string, any>;
     protected suggestType: string;
 
     constructor(name:string, type:string) {
@@ -70,7 +70,7 @@ export class EsAbstractSuggest implements EsQueryDsl {
         return this.suggestName;
     }
 
-    public body(): any {
+    public body(): Record<string, any> {
         return this.suggestBody;
     }
 

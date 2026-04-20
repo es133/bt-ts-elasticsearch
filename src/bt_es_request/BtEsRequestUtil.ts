@@ -11,16 +11,16 @@ export class BtEsRequestUtil {
         return (instance as EsRetriever).isEsRetriever !== undefined;
     }
 
-    static buildQueryParam(query:EsQueryDsl) {
-        const result:any = {};
-        const stack: Array<{ query: EsQueryDsl, assign: (r: any) => void }> = [
+    static buildQueryParam(query:EsQueryDsl): Record<string, any> {
+        const result: Record<string, any> = {};
+        const stack: Array<{ query: EsQueryDsl, assign: (r: Record<string, any>) => void }> = [
             { query, assign: (r) => Object.assign(result, r) }
         ];
 
         while (stack.length > 0) {
             const { query: currentQuery, assign } = stack.pop()!;
-            const param:any = {};
-            let root = null;
+            const param: Record<string, any> = {};
+            let root: Record<string, any> | null = null;
 
             //If Dsl has no _title property
             if (currentQuery.name() === undefined || currentQuery.name() === null) {
@@ -85,15 +85,15 @@ export class BtEsRequestUtil {
         return result;
     }
 
-    static buildAggsParam(aggs:EsQueryDsl) {
-        const result:any = {};
-        const stack: Array<{ query: EsQueryDsl, assign: (r: any) => void }> = [
+    static buildAggsParam(aggs:EsQueryDsl): Record<string, any> {
+        const result: Record<string, any> = {};
+        const stack: Array<{ query: EsQueryDsl, assign: (r: Record<string, any>) => void }> = [
             { query: aggs, assign: (r) => Object.assign(result, r) }
         ];
 
         while (stack.length > 0) {
             const { query: currentAggs, assign } = stack.pop()!;
-            const param:any = {};
+            const param: Record<string, any> = {};
 
             param[currentAggs.name()] = {};
             const root = currentAggs.body()[currentAggs.name()];
@@ -126,15 +126,15 @@ export class BtEsRequestUtil {
         return result;
     }
 
-    static buildSuggestParam(suggest:EsQueryDsl) {
-        const result:any = {};
-        const stack: Array<{ query: EsQueryDsl, assign: (r: any) => void }> = [
+    static buildSuggestParam(suggest:EsQueryDsl): Record<string, any> {
+        const result: Record<string, any> = {};
+        const stack: Array<{ query: EsQueryDsl, assign: (r: Record<string, any>) => void }> = [
             { query: suggest, assign: (r) => Object.assign(result, r) }
         ];
 
         while (stack.length > 0) {
             const { query: currentSuggest, assign } = stack.pop()!;
-            const param:any = {};
+            const param: Record<string, any> = {};
 
             param[currentSuggest.name()] = {};
             const root = currentSuggest.body()[currentSuggest.name()];
@@ -167,11 +167,11 @@ export class BtEsRequestUtil {
         return result;
     }
 
-    static buildRetrieverParam(retriever: EsRetriever) {
-        const result: any = {};
+    static buildRetrieverParam(retriever: EsRetriever): Record<string, any> {
+        const result: Record<string, any> = {};
         type StackItem =
-            | { type: 'retriever'; source: EsRetriever; assign: (r: any) => void }
-            | { type: 'queryDsl'; source: EsQueryDsl; assign: (r: any) => void };
+            | { type: 'retriever'; source: EsRetriever; assign: (r: Record<string, any>) => void }
+            | { type: 'queryDsl'; source: EsQueryDsl; assign: (r: Record<string, any>) => void };
         const stack: StackItem[] = [
             { type: 'retriever', source: retriever, assign: (r) => Object.assign(result, r) }
         ];
@@ -186,8 +186,8 @@ export class BtEsRequestUtil {
 
             const currentRetriever = item.source;
             const assign = item.assign;
-            const param: any = {};
-            let root = null;
+            const param: Record<string, any> = {};
+            let root: Record<string, any> | null = null;
 
             if (currentRetriever.name() === undefined || currentRetriever.name() === null) {
                 root = currentRetriever.body();

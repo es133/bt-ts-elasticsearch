@@ -4,7 +4,7 @@ import { EsQueryDsl } from '../../interface/EsQueryDsl';
 export class EsAbstractAggregation implements EsQueryDsl {
     protected aggsName: string;
     protected aggsType: string;
-    protected aggsBody: any;
+    protected aggsBody: Record<string, any>;
 
     constructor(name:string, type:string) {
         this.aggsName = name;
@@ -47,11 +47,11 @@ export class EsAbstractAggregation implements EsQueryDsl {
         return this.aggsName;
     }
 
-    public body(): any {
+    public body(): Record<string, any> {
         return this.aggsBody;
     }
 
-    public subAggregations(aggs:EsQueryDsl): any {
+    public subAggregations(aggs:EsQueryDsl): this {
         if (!this.aggsBody[this.aggsName]['aggregations']) {
             this.aggsBody[this.aggsName]['aggregations'] = [];
         }

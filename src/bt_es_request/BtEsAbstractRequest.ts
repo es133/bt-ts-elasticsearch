@@ -3,7 +3,7 @@
 import {ES_QUERY_PARAM, ES_VERSION_TYPE} from "../type/BtEsEnums";
 
 export class BtEsAbstractRequest {
-    param: any;
+    param: Record<string, any>;
     constructor() {
         this.param = {};
     }
@@ -75,7 +75,7 @@ export class BtEsAbstractRequest {
         }
     }
 
-    public getParam():any {
+    public getParam(): Record<string, any> {
         return this.param;
     }
 

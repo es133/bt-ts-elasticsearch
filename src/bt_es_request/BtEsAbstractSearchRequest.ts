@@ -7,16 +7,16 @@ import { ScriptFields, DocValueFields } from '../type/EsRequestTypes';
 
 export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
 
-    protected sort:any;
-    protected query:any;
-    protected retriever:any;
-    protected highlight:any;
-    protected aggregations:any;
-    protected suggest:any;
-    protected postFilter:any;
-    protected scroll:any;
-    protected scrollId:string | null;
-    protected searchAfter: null | any[];
+    protected sort: Record<string, any> | null;
+    protected query: EsQueryDsl | null;
+    protected retriever: EsRetriever | null;
+    protected highlight: Record<string, any> | null;
+    protected aggregations: Record<string, any> | null;
+    protected suggest: Record<string, any> | null;
+    protected postFilter: EsQueryDsl | null;
+    protected scroll: string | null;
+    protected scrollId: string | null;
+    protected searchAfter: Array<string | number> | null;
     protected pit: null | {id: string, keep_alive: string};
 
     constructor(){
@@ -91,14 +91,14 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         this.param[ES_QUERY_PARAM.TRACK_TOTAL_HITS] = value;
     }
 
-    public addSort(sort:any) {
+    public addSort(sort:EsQueryDsl) {
         if (this.sort === undefined || this.sort === null) {
             this.sort = {'sort': []};
         }
         this.sort['sort'].push(BtEsRequestUtil.buildQueryParam(sort));
     }
 
-    public addAggregations(aggregations:any) {
+    public addAggregations(aggregations:EsQueryDsl) {
         if (this.aggregations === undefined || this.aggregations === null) {
             this.aggregations = {'aggregations': {}};
         }
@@ -143,13 +143,13 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         }
     }
 
-    public setSearchAfter(value: any): void {
+    public setSearchAfter(value: string | number): void {
         if (value !== undefined && value !== null) {
             this.searchAfter = [value];
         }
     }
 
-    public getSearchAfter(): any {
+    public getSearchAfter(): Array<string | number> | null {
         return this.searchAfter;
     }
 
@@ -170,7 +170,7 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         this.query = queryDsl;
     }
 
-    public getQueryDsl():EsQueryDsl {
+    public getQueryDsl():EsQueryDsl | null {
         return this.query;
     }
 
@@ -178,7 +178,7 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         this.retriever = retriever;
     }
 
-    public getRetriever():EsRetriever {
+    public getRetriever():EsRetriever | null {
         return this.retriever;
     }
 
@@ -193,7 +193,7 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         return scrollParam;
     }
 
-    public getParam() {
+    public getParam(): Record<string, any> {
         if (this.retriever !== null) {
             this.param[ES_QUERY_PARAM.BODY][ES_QUERY_PARAM.RETRIEVER] = BtEsRequestUtil.buildRetrieverParam(this.retriever);
         } else if (this.query !== null) {

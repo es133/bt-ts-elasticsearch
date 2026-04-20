@@ -1,5 +1,5 @@
 export interface EsRetriever {
     name(): string;
-    body(): any;
+    body(): Record<string, any>;
     isEsRetriever(): boolean;
 }

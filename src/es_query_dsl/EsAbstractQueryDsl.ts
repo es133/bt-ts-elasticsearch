@@ -2,7 +2,7 @@ import {EsQueryDsl} from '../interface/EsQueryDsl';
 
 export class EsAbstractQueryDsl implements EsQueryDsl {
     protected dslName : string;
-    protected dslBody: any;
+    protected dslBody: Record<string, any>;
 
     constructor(name: string) {
         this.dslName = name;
@@ -14,7 +14,7 @@ export class EsAbstractQueryDsl implements EsQueryDsl {
         return this.dslName;
     }
 
-    public body(): any {
+    public body(): Record<string, any> {
         return this.dslBody;
     }
 

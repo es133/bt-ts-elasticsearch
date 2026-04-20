@@ -17,7 +17,7 @@ import { BtEsUpdateByQueryResponse } from './response/BtEsUpdateByQueryResponse'
 export class BtEsDocumentDao extends BtEsAbstractDao {
 
     public async requestGet(request: BtEsAbstractGetRequest): Promise<BtEsGetResponse> {
-        const response = await this.esClient.get(request.getParam());
+        const response = await this.esClient.get(request.getParam() as any);
         return new BtEsGetResponse(response);
     }
 
@@ -70,7 +70,7 @@ export class BtEsDocumentDao extends BtEsAbstractDao {
     }
 
     public async requestDelete(request: BtEsAbstractDeleteRequest): Promise<BtEsDocumentIndexResponse> {
-        const response = await this.esClient.delete(request.getParam());
+        const response = await this.esClient.delete(request.getParam() as any);
         return new BtEsDocumentIndexResponse(response);
     }
 
@@ -179,7 +179,7 @@ export class BtEsDocumentDao extends BtEsAbstractDao {
     }
 
     public async requestDeleteByQuery(request: BtEsAbstractDeleteByQueryRequest): Promise<BtEsDeleteByQueryResponse> {
-        const response = await this.esClient.deleteByQuery(request.getParam());
+        const response = await this.esClient.deleteByQuery(request.getParam() as any);
         return new BtEsDeleteByQueryResponse(response);
     }
 }

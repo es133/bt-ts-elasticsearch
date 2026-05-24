@@ -177,4 +177,86 @@ describe('BtEsAbstractSearchRequest', () => {
             });
         });
     });
+
+    describe('useClientSideRetriever', () => {
+        it('defaults to true', () => {
+            const request = new BtEsAbstractSearchRequest();
+            expect(request.useClientSideRetriever).toBe(true);
+        });
+
+        it('can be disabled via property setter', () => {
+            const request = new BtEsAbstractSearchRequest();
+            request.useClientSideRetriever = false;
+            expect(request.useClientSideRetriever).toBe(false);
+        });
+
+        it('does not appear in getParam() output', () => {
+            const request = new BtEsAbstractSearchRequest();
+            request.useClientSideRetriever = false;
+            const param = request.getParam();
+            expect(param.useClientSideRetriever).toBeUndefined();
+            expect(param.use_client_side_retriever).toBeUndefined();
+        });
+    });
+
+    describe('getters used to build RetrieverContext', () => {
+        it('exposes index, trackTotalHits, source via getters', () => {
+            const request = new BtEsAbstractSearchRequest();
+            request.setIndex('my-idx');
+            request.trackTotalHits = false;
+            request.setSource(['t']);
+
+            expect(request.getIndex()).toBe('my-idx');
+            expect(request.getTrackTotalHits()).toBe(false);
+            expect(request.getSource()).toEqual(['t']);
+        });
+
+        it('exposes sort fragment via getSort()', () => {
+            const request = new BtEsAbstractSearchRequest();
+            request.addSort(EsSearchOptionBuilder.sort('created_at', 'desc' as any));
+
+            const sortBody = request.getSort();
+            expect(sortBody).not.toBeNull();
+            expect(sortBody!.sort).toBeInstanceOf(Array);
+            expect(sortBody!.sort).toHaveLength(1);
+        });
+
+        it('exposes highlight fragment via getHighlight()', () => {
+            const request = new BtEsAbstractSearchRequest();
+            const hl = EsSearchOptionBuilder.highlight(['title']);
+            request.addHighlight(hl);
+
+            const highlight = request.getHighlight();
+            expect(highlight).not.toBeNull();
+            expect(highlight!.highlight).toBeDefined();
+            expect(highlight!.highlight.fields).toHaveProperty('title');
+        });
+
+        it('returns null for sort/highlight when not set', () => {
+            const request = new BtEsAbstractSearchRequest();
+            expect(request.getSort()).toBeNull();
+            expect(request.getHighlight()).toBeNull();
+        });
+
+        it('exposes postFilter via setter / getter', () => {
+            const request = new BtEsAbstractSearchRequest();
+            const filter = EsQueryBuilder.termQuery('lang', 'ko');
+            request.setPostFilter(filter);
+            expect(request.getPostFilter()).toBe(filter);
+        });
+
+        it('exposes aggregations fragment via getAggregations()', () => {
+            const request = new BtEsAbstractSearchRequest();
+            request.addAggregations(EsAggregationBuilder.termsAggregations('by_status', 'status'));
+
+            const aggs = request.getAggregations();
+            expect(aggs).not.toBeNull();
+            expect(aggs!.aggregations).toEqual({by_status: {terms: {field: 'status'}}});
+        });
+
+        it('returns null for getAggregations when not set', () => {
+            const request = new BtEsAbstractSearchRequest();
+            expect(request.getAggregations()).toBeNull();
+        });
+    });
 });

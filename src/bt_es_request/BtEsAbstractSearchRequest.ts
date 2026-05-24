@@ -18,6 +18,7 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
     protected scrollId: string | null;
     protected searchAfter: Array<string | number> | null;
     protected pit: null | {id: string, keep_alive: string};
+    protected useClientSideRetrieverFlag: boolean;
 
     constructor(){
         super();
@@ -37,6 +38,7 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         this.scrollId = null;
         this.searchAfter = null;
         this.pit = null;
+        this.useClientSideRetrieverFlag = true;
     }
 
     public setSize(size:number):void {
@@ -87,8 +89,48 @@ export class BtEsAbstractSearchRequest extends BtEsAbstractRequest {
         this.setTimeout(timeout);
     }
 
-    public set trackTotalHits(value:boolean) {
+    public set trackTotalHits(value:boolean | number) {
         this.param[ES_QUERY_PARAM.TRACK_TOTAL_HITS] = value;
+    }
+
+    public getTrackTotalHits(): boolean | number {
+        return this.param[ES_QUERY_PARAM.TRACK_TOTAL_HITS];
+    }
+
+    public getIndex(): string | string[] | undefined {
+        return this.param[ES_QUERY_PARAM.INDEX];
+    }
+
+    public getSource(): any {
+        return this.param[ES_QUERY_PARAM.SOURCE];
+    }
+
+    public getSort(): Record<string, any> | null {
+        return this.sort;
+    }
+
+    public getHighlight(): Record<string, any> | null {
+        return this.highlight;
+    }
+
+    public getAggregations(): Record<string, any> | null {
+        return this.aggregations;
+    }
+
+    public setPostFilter(postFilter: EsQueryDsl | null): void {
+        this.postFilter = postFilter;
+    }
+
+    public getPostFilter(): EsQueryDsl | null {
+        return this.postFilter;
+    }
+
+    public set useClientSideRetriever(value: boolean) {
+        this.useClientSideRetrieverFlag = value;
+    }
+
+    public get useClientSideRetriever(): boolean {
+        return this.useClientSideRetrieverFlag;
     }
 
     public addSort(sort:EsQueryDsl) {
